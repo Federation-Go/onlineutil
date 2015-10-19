@@ -34,6 +34,8 @@ func (h *Heartbeater) beat() error {
 		msg = h.getMessage()
 	}
 	_, err := h.multicast.Write([]byte(msg))
+	if err != nil {
+	}
 	return err
 }
 func NewHeartbeater(msg, group, port string, getMessage GetMessageFunc) (*Heartbeater, error) {
