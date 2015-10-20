@@ -1,13 +1,22 @@
 package logsetup
 
+import (
+	"strings"
+)
+
 var formats = map[string]string{
 	"(name)":      "name",
-	"(time)":      "time",
+	"(levelno)":   "levelno",
 	"(levelname)": "levelname",
-	"(funcname)":  "funcname",
+	"(pathname)":  "pathname",
+	"(filename)":  "filename",
+	"(package)":   "package",
+	"(lineno)":    "lineno",
+	"(funcName)":  "funcName",
+	"(created)":   "created",
+	"(asctime)":   "asctime",
+	"(msecs)":     "msecs",
 	"(message)":   "message",
-	"(longfile)":  "shortfile",
-	"(utc)":       "utc",
 }
 
 const (
@@ -27,7 +36,7 @@ type Formatter struct {
 	TimeLayout string
 }
 
-var defaultLayout = "2006-01-02 15:04:05.999"
+var defaultTimeLayout = "2006-01-02 15:04:05.999"
 var defaultFormat = "%(message)"
 
 func NewFormatter(logFormat string, timeLayout string) *Formatter {
@@ -40,7 +49,7 @@ func NewFormatter(logFormat string, timeLayout string) *Formatter {
 	}
 	return f
 }
-func (f Formatter) FormatTime(record LogRecord, layout string) string {
+func (f *Formatter) FormatTime(record LogRecord, layout string) string {
 	var date string
 	if layout != "" {
 		date = record.Created.Format(layout)
@@ -49,6 +58,15 @@ func (f Formatter) FormatTime(record LogRecord, layout string) string {
 	}
 	return date
 }
-func (f Formatter) Format(record LogRecord) string {
+func (f *Formatter) Format(record LogRecord) string {
 	message := record.GetMessage()
+	if f.UseTime() {
+		asctime := f.FormatTime(record, f.TimeLayout)
+	}
+}
+func (f *Formatter) UseTime() bool {
+	if index := strings.Index(f.LogFormat, "%(asctime)"); index >= 0 {
+		return true
+	}
+	return false
 }
