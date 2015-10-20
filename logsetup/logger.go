@@ -11,6 +11,10 @@ type Filterer struct {
 	filters map[Filter]bool
 }
 
+func NewFilterer() *Filterer {
+	return &Filterer{filters: make(map[Filter]bool)}
+}
+
 func (f *Filterer) AddFilter(filter Filter) {
 	if _, ok := f.filters[filter]; !ok {
 		f.filters[filter] = true
