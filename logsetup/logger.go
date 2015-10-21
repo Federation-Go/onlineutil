@@ -7,47 +7,48 @@ import (
 	"sync"
 )
 
-type Filterer struct {
-	filters map[Filter]bool
-}
-
-func NewFilterer() *Filterer {
-	return &Filterer{filters: make(map[Filter]bool)}
-}
-
-func (f *Filterer) AddFilter(filter Filter) {
-	if _, ok := f.filters[filter]; !ok {
-		f.filters[filter] = true
-	}
-}
-func (f *Filterer) RemoveFilter(filter Filter) {
-	if _, ok := f.filters[filter]; ok {
-		delete(f.filters, filter)
-	}
-}
-func (f *Filterer) filter(record LogRecord) bool {
-	for key, _ := range f.filters {
-		if !key.filter(record) {
-			return false
-		}
-	}
-	return true
-}
-
 type Logger struct {
 	Name      string
-	Level     string
-	Parent    Logger
+	LevelName string
+	LevelNo   int
+	Parent    *Logger
 	Propagate bool
 	Handlers  []Handler
 	Disable   bool
 }
 
-func (logger *Logger) SetLevel(level string) error {
-	err := checkLevel(level)
+func NewLogger(name string) *Logger {
+	return &Logger{
+		Name:      name,
+		LevelName: "NOTSET",
+		LevelNo:   0,
+		Parent:    nil,
+		Propagate: true,
+		Handlers:  make([]Handler, 2, 10),
+		Disable:   false,
+	}
+}
+func (l *Logger) SetLevel(levelname string) error {
+	levelno, err := checkLevel(levelname)
 	if err != nil {
 		return err
 	}
-	logger.Level = level
+	l.LevelName = levelname
+	l.LevelNo = levelno
 	return nil
+}
+func (l *Logger) Debug(message string, args ...interface{}) {
+}
+func (l *Logger) Info(message string, args ...interface{}) {
+}
+
+func (l *Logger) Warn(message string, args ...interface{}) {
+}
+
+func (l *Logger) Error(message string, args ...interface{}) {
+}
+
+func (l *Logger) Fatal(message string, args ...interface{}) {
+}
+func (l *Logger) Log(levelname, message string, args ...interface{}) {
 }

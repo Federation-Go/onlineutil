@@ -1,10 +1,9 @@
 package logsetup
 
 import (
+	"errors"
 	"fmt"
-	"log"
-	"runtime"
-	"time"
+	"sync"
 )
 
 const (
@@ -49,3 +48,30 @@ func addLevelName(level int, levelName string) {
 }
 
 var DefaultFormatter = new(Formatter)
+
+type Filterer struct {
+	filters map[Filter]bool
+}
+
+func NewFilterer() *Filterer {
+	return &Filterer{filters: make(map[Filter]bool)}
+}
+
+func (f *Filterer) AddFilter(filter Filter) {
+	if _, ok := f.filters[filter]; !ok {
+		f.filters[filter] = true
+	}
+}
+func (f *Filterer) RemoveFilter(filter Filter) {
+	if _, ok := f.filters[filter]; ok {
+		delete(f.filters, filter)
+	}
+}
+func (f *Filterer) filter(record LogRecord) bool {
+	for key, _ := range f.filters {
+		if !key.filter(record) {
+			return false
+		}
+	}
+	return true
+}

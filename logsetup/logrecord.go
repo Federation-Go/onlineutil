@@ -9,17 +9,19 @@ import (
 )
 
 type LogRecord struct {
-	Name      string
-	Message   string
-	LevelNo   string
-	LevelName string
-	PathName  string
-	FileName  string
-	Package   string
-	FuncName  string
-	LineNo    int
-	Args      []interface{}
-	Created   time.Time
+	ct           time.Time
+	Name         string
+	Message      string
+	LevelNo      string
+	LevelName    string
+	PathName     string
+	FileName     string
+	Package      string
+	FuncName     string
+	LineNo       int
+	Args         []interface{}
+	Created      float64
+	MilliSeconds int
 }
 
 func NewLogRecord(name, message, levelName string, args ...interface{}) *LogRecord {
@@ -34,7 +36,9 @@ func NewLogRecord(name, message, levelName string, args ...interface{}) *LogReco
 	r.LevelName = levelName
 	r.LevelNo = levelNo
 	r.Args = args
-	r.Created = time.Now()
+	r.ct = time.Now()
+	r.Created = float64(r.ct.Local().UnixNano()/1000/1000) / 1000
+	r.MilliSeconds = r.ct.Nanosecond() / 1000 / 1000
 	return r
 }
 func (r *LogRecord) GetMessage() string {

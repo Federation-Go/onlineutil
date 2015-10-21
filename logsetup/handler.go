@@ -1,39 +1,62 @@
 package logsetup
 
 import (
+	"errors"
 	"sync"
 )
 
+type IHandler interface {
+	Handle(r *LogRecord) bool
+}
 type Handler struct {
-	*Filter
+	*Filterer
 	name      string
 	LevelName string
 	Formatter *Formatter
-	lock      sync.Mutex
+	Lock      sync.Mutex
 }
 
-func (h *Handler) createLock() {
+func NewHandler() *Handler {
+	var h = new(Handler)
+	h.Filterer = NewFilterer()
+	return h
+}
+func (h *Handler) Name() string {
+	return h.name
+}
+func (h *Handler) SetName(name string) {
+	acquireLock()
+	defer releaseLock()
 
 }
-func (h *Handler) acquire() {
-	h.Lock()
+func (h *Handler) Acquire() {
+	h.Lock.Lock()
 }
-func (h *Handler) release() {
-	h.Unlock()
+func (h *Handler) Release() {
+	h.Lock.Unlock()
 }
-func (h *Handler) SetLevel(levelName string) {
+func (h *Handler) setLevel(levelName string) error {
 	err := checkLevel(levelName)
 	if err != nil {
-		panic("Unknown Level")
+		return err
 	}
 	h.LevelName = levelName
+	return nil
 }
 func (h *Handler) Format(record LogRecord) {
-	h.Format(record)
+	if h.Formatter == nil {
+		h.Formatter = DefaultFormatter
+	}
+	return h.Formatter.Format(record)
 }
-func (h *Handler) Handle(record) bool {
-	rv := h.filter(record)
+func (h *Handler) Emit(record LogRecord) error {
+	return errors.New("emit function not implements by handler")
 }
-func (h *Handler) SetFormatter(formatter *Formatter) {
-	h.Formatter = formatter
+func (h *Handler) Handle(record LogRecord) {
+	rv := h.Filter(record)
+	if rv {
+		h.Acquire()
+		defer h.Release()
+
+	}
 }
