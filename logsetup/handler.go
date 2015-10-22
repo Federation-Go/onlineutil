@@ -2,11 +2,14 @@ package logsetup
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"sync"
 )
 
 type IHandler interface {
 	Handle(r *LogRecord) bool
+	LevelNo() int
 }
 type Handler struct {
 	*Filterer
@@ -35,15 +38,23 @@ func (h *Handler) Acquire() {
 func (h *Handler) Release() {
 	h.Lock.Unlock()
 }
-func (h *Handler) setLevel(levelName string) error {
-	err := checkLevel(levelName)
+func (h *Handler) setLevel(levelname string) error {
+	_, err := checkLevel(levelname)
 	if err != nil {
 		return err
 	}
-	h.LevelName = levelName
+	h.LevelName = levelname
 	return nil
 }
-func (h *Handler) Format(record LogRecord) {
+func (h *Handler) LevelNo() int {
+	levelno, err := checkLevel(h.LevelName)
+	if err != nil {
+		fmt.Sprint(os.Stderr, "handler's levelname is invalid\n")
+		os.Exit(1)
+	}
+	return levelno
+}
+func (h *Handler) Format(record *LogRecord) string {
 	if h.Formatter == nil {
 		h.Formatter = DefaultFormatter
 	}
@@ -52,7 +63,7 @@ func (h *Handler) Format(record LogRecord) {
 func (h *Handler) Emit(record LogRecord) error {
 	return errors.New("emit function not implements by handler")
 }
-func (h *Handler) Handle(record LogRecord) {
+func (h *Handler) Handle(record *LogRecord) {
 	rv := h.Filter(record)
 	if rv {
 		h.Acquire()

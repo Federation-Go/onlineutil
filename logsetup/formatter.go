@@ -1,6 +1,7 @@
 package logsetup
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -19,18 +20,6 @@ var formats = map[string]string{
 	"%(message)s":   "message",
 }
 
-const (
-	Ltime = 1 << itoa
-	Lname
-	Llevelname
-	Lfuncname
-	Lmessage
-	Llongfile
-	Lshortfile
-	LUTC
-	LstdFlags = Ldate | Ltime | LUTC | Lmessage
-)
-
 type Formatter struct {
 	LogFormat  string
 	TimeLayout string
@@ -42,19 +31,19 @@ var defaultFormat = "%(message)s"
 func NewFormatter(logFormat string, timeLayout string) *Formatter {
 	var f = new(Formatter)
 	if f.LogFormat = logFormat; logFormat == "" {
-		f.LogFormat = LstdFlags
+		f.LogFormat = defaultFormat
 	}
 	if f.TimeLayout = timeLayout; timeLayout == "" {
-		f.TimeLayout = defaultLayout
+		f.TimeLayout = defaultTimeLayout
 	}
 	return f
 }
 func (f *Formatter) FormatTime(record *LogRecord, layout string) string {
 	var date string
 	if layout != "" {
-		date = record.Created.Format(layout)
+		date = record.ct.Format(layout)
 	} else {
-		date = record.Created.Format(defaultLayout)
+		date = record.ct.Format(defaultTimeLayout)
 	}
 	return date
 }
@@ -71,7 +60,7 @@ func (f *Formatter) Format(record *LogRecord) string {
 			case "name":
 				log = strings.Replace(f.LogFormat, key, record.Name, -1)
 			case "levelno":
-				log = strings.Replace(f.LogFormat, key, record.LevelNo, -1)
+				log = strings.Replace(f.LogFormat, key, strconv.Itoa(record.LevelNo), -1)
 			case "levelname":
 				log = strings.Replace(f.LogFormat, key, record.LevelName, -1)
 			case "pathname":
@@ -79,15 +68,16 @@ func (f *Formatter) Format(record *LogRecord) string {
 			case "filename":
 				log = strings.Replace(f.LogFormat, key, record.FileName, -1)
 			case "lineno":
-				log = strings.Replace(f.LogFormat, key, record.LineNo, -1)
+				log = strings.Replace(f.LogFormat, key, strconv.Itoa(record.LineNo), -1)
 			case "package":
-				log = strings.Replace(f.LogFormat, key, record.Package, -1)
+				log = strings.Replace(f.LogFormat, key, record.PackageName, -1)
 			case "created":
-				log = strings.Replace(f.LogFormat, key, record.Created, -1)
+				log = strings.Replace(f.LogFormat, key,
+					strconv.FormatFloat(record.Created, 'f', 3, 64), -1)
 			case "asctime":
 				log = strings.Replace(f.LogFormat, key, asctime, -1)
 			case "msecs":
-				log = strings.Replace(f.LogFormat, key, record.MilliSeconds, -1)
+				log = strings.Replace(f.LogFormat, key, strconv.Itoa(record.MilliSeconds), -1)
 			case "message":
 				log = strings.Replace(f.LogFormat, key, message, -1)
 			}

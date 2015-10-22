@@ -11,7 +11,7 @@ type LogRecord struct {
 	ct           time.Time
 	Name         string
 	Message      string
-	LevelNo      string
+	LevelNo      int
 	LevelName    string
 	PathName     string
 	FileName     string
@@ -28,20 +28,20 @@ func NewLogRecord(name, message, levelname, pathname, packagename,
 	var r = new(LogRecord)
 	r.Name = name
 	r.Message = message
-	levelNo, err := checkLevel(levelName)
+	levelno, err := checkLevel(levelname)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Couldn't create LogRecord, unknown level name %v\n", levelName)
+		fmt.Fprintf(os.Stderr, "Couldn't create LogRecord, unknown level name %v\n", levelname)
 		os.Exit(1)
 	}
-	r.LevelName = levelName
-	r.LevelNo = levelNo
+	r.LevelName = levelname
+	r.LevelNo = levelno
 	r.Args = args
 	r.ct = time.Now()
 	r.Created = float64(r.ct.Local().UnixNano()/1000/1000) / 1000
 	r.MilliSeconds = r.ct.Nanosecond() / 1000 / 1000
 	r.PathName = pathname
 	r.LineNo = lineno
-	r.FileName = path.Base(PathName)
+	r.FileName = path.Base(pathname)
 	r.FuncName = funcname
 	r.PackageName = packagename
 	return r

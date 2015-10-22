@@ -16,13 +16,13 @@ func NewManager(rootnode Logger) *Manager {
 	}
 }
 
-func (m *Manager) GetLogger(name string) {
+func (m *Manager) GetLogger(name string) *Logger {
 	var l *Logger
 	acquireLock()
 	defer releaseLock()
 	if l, ok := m.loggerDict[name]; !ok {
 		l = NewLogger(name)
-		m.loggerDict = l
+		m.loggerDict[name] = l
 		m.fixupParents(l)
 	}
 	return l

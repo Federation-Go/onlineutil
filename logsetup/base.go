@@ -26,7 +26,7 @@ var levelNames = map[string]int{
 	"DEBUG":    DEBUG,
 	"NOTSET":   NOTSET,
 }
-var lock = sync.Mutex
+var lock sync.Mutex
 
 func acquireLock() {
 	lock.Lock()
@@ -38,7 +38,7 @@ func checkLevel(level string) (int, error) {
 	if value, ok := levelNames[level]; ok {
 		return value, nil
 	}
-	return -1, errors.New(fmt.Printf("Unknown level: %s", level))
+	return -1, errors.New(fmt.Sprintf("Unknown level: %s", level))
 }
 
 func addLevelName(level int, levelName string) {
@@ -67,9 +67,9 @@ func (f *Filterer) RemoveFilter(filter Filter) {
 		delete(f.filters, filter)
 	}
 }
-func (f *Filterer) filter(record LogRecord) bool {
+func (f *Filterer) Filter(record *LogRecord) bool {
 	for key, _ := range f.filters {
-		if !key.filter(record) {
+		if !key.Filter(record) {
 			return false
 		}
 	}
