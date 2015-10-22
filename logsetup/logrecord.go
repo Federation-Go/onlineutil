@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"runtime"
 	"time"
 )
 
@@ -16,7 +15,7 @@ type LogRecord struct {
 	LevelName    string
 	PathName     string
 	FileName     string
-	Package      string
+	PackageName  string
 	FuncName     string
 	LineNo       int
 	Args         []interface{}
@@ -24,7 +23,8 @@ type LogRecord struct {
 	MilliSeconds int
 }
 
-func NewLogRecord(name, message, levelName string, args ...interface{}) *LogRecord {
+func NewLogRecord(name, message, levelname, pathname, packagename,
+	funcname string, lineno int, args ...interface{}) *LogRecord {
 	var r = new(LogRecord)
 	r.Name = name
 	r.Message = message
@@ -39,6 +39,11 @@ func NewLogRecord(name, message, levelName string, args ...interface{}) *LogReco
 	r.ct = time.Now()
 	r.Created = float64(r.ct.Local().UnixNano()/1000/1000) / 1000
 	r.MilliSeconds = r.ct.Nanosecond() / 1000 / 1000
+	r.PathName = pathname
+	r.LineNo = lineno
+	r.FileName = path.Base(PathName)
+	r.FuncName = funcname
+	r.PackageName = packagename
 	return r
 }
 func (r *LogRecord) GetMessage() string {
@@ -51,18 +56,4 @@ func (r *LogRecord) GetMessage() string {
 func (r *LogRecord) String() string {
 	return fmt.Sprintf("<LogRecord: %v, %v, %v, %v, \"%v\">",
 		r.Name, r.LevelNo, r.PathName, r.LineNo, r.Message)
-}
-func (r *LogRecord) GetRuntimeInfo() {
-	pc, pathname, lineno, ok := runtime.Caller(0)
-	if !ok {
-		r.PathName = "???"
-		r.FileName = "???"
-		r.FuncName = "???"
-		r.LineNo = 0
-	} else {
-		r.PathName = pathname
-		r.LineNo = lineno
-		r.FileName = path.Base(PathName)
-		r.FuncName = runtime.FuncForPC(pc).Name()
-	}
 }

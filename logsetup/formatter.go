@@ -64,9 +64,6 @@ func (f *Formatter) Format(record *LogRecord) string {
 	if f.UseTime() {
 		asctime = f.FormatTime(record, f.TimeLayout)
 	}
-	if f.UseRuntimeInfo() {
-		record.GetRuntimeInfo()
-	}
 	log := f.LogFormat
 	for index, key := range strings.Split(f.LogFormat, " ") {
 		if value, ok := formats[key]; ok {
@@ -103,11 +100,4 @@ func (f *Formatter) UseTime() bool {
 		return true
 	}
 	return false
-}
-func (f *Formatter) UseRuntimeInfo() bool {
-	return strings.Contains(f.LogFormat, "%(pathname)") |
-		strings.Contains(f.LogFormat, "%(filename)") |
-		strings.contains(f.LogFormat, "%(package)") |
-		strings.Contains(f.LogFormat, "%(lineno)") |
-		strings.Contains(f.LogFormat, "%(funcName)")
 }

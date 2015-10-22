@@ -1,12 +1,5 @@
 package logsetup
 
-import (
-	"errors"
-	"fmt"
-	"log"
-	"sync"
-)
-
 type Logger struct {
 	Name      string
 	LevelName string
@@ -51,4 +44,6 @@ func (l *Logger) Error(message string, args ...interface{}) {
 func (l *Logger) Fatal(message string, args ...interface{}) {
 }
 func (l *Logger) Log(levelname, message string, args ...interface{}) {
+}
+func (l *Logger) FindCaller() {
 }
