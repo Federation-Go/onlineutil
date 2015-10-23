@@ -49,6 +49,14 @@ func addLevelName(level int, levelName string) {
 
 var DefaultFormatter = new(Formatter)
 
+type Filter interface {
+	Filter(r *LogRecord) bool
+}
+
+type Handler interface {
+	Handle(r *LogRecord) bool
+}
+
 type Filterer struct {
 	filters map[Filter]bool
 }

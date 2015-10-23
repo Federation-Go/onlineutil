@@ -4,12 +4,13 @@ import (
 	"strings"
 )
 
-type Filter string
+type DefaultFilter string
 
-func NewFilter(name string) Filter {
-	return Filter(name)
+func NewDefaultFilter(name string) Filter {
+	return DefaultFilter(name)
 }
-func (f Filter) Filter(record *LogRecord) bool {
+
+func (f DefaultFilter) Filter(record *LogRecord) bool {
 	length := len(f)
 	switch {
 	case length == 0:

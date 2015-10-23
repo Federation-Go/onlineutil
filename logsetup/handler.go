@@ -7,21 +7,16 @@ import (
 	"sync"
 )
 
-type IHandler interface {
-	Handle(r *LogRecord) bool
-	LevelNo() int
-}
-type Handler struct {
-	*Filterer
+type DefaultHandler struct {
+	Filterer
 	name      string
 	LevelName string
 	Formatter *Formatter
 	Lock      sync.Mutex
 }
 
-func NewHandler() *Handler {
-	var h = new(Handler)
-	h.Filterer = NewFilterer()
+func NewDefaultHandler(name string, levelname string, formatter *Formatter) *Handler {
+	var h = new(DefaultHandler)
 	return h
 }
 func (h *Handler) Name() string {
